@@ -1,22 +1,20 @@
-import {
-  listenAndServe,
-  ServerRequest,
-  Response
-} from "https://deno.land/std/http/server.ts";
+import { listenAndServe, ServerRequest, Response } from "https://deno.land/std/http/server.ts";
 
-const host: string = "localhost";
-const port: number = 2312;
-
+const { permissions } = Deno;
 const body: Uint8Array = new TextEncoder().encode("Hello World\n");
 
-console.log(`Listening at ${host} on ${port}`);
+export async function startServer(addr: string): Promise<void> {
+  if (!permissions().net) {
+    throw new Error("Server requires network permission");
+  }
 
-window.onload = async () => {
-  await listenAndServe(`${host}:${port}`, async (request: ServerRequest) => {
+  console.log(`Listening ${addr}`);
+
+  await listenAndServe(addr, async (request: ServerRequest) => {
     let response: Response = {
       body: body
     };
 
     await request.respond(response);
   });
-};
+}
